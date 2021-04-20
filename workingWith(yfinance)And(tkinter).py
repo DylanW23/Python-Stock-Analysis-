@@ -121,11 +121,17 @@ def grabDataYahooFinance(x):
             plt.show()
         plotRSI()
 
+    # Creates candlesticks for the stock / etf
+    # Add functionality to click on candlesticks to see the highs, lows, opens and closes
     def createCandleSticks(x):
         data = pdr.get_data_yahoo(x, start=startDate, end=today)
-        print(mpf.available_styles())
-        mpf.plot(data, type="candle", style="binance")
-
+        colors = mpf.make_marketcolors(up="#00ff00",
+                                       down="#ff0000",
+                                       wick="inherit",
+                                       edge="inherit",
+                                       volume="in")
+        mpfStyle = mpf.make_mpf_style(base_mpf_style="nightclouds", marketcolors=colors)
+        mpf.plot(data, type="candle", style=mpfStyle, volume=True)
 
 
     # Calling functions and running code
