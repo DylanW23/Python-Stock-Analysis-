@@ -25,6 +25,11 @@ def generateStockData(x):
     majorHolders = yfTicker.major_holders
     instituionalHolders = yfTicker.institutional_holders
     Recomendations = yfTicker.recommendations
+    print("---------------------------------------------------")
+    print("Here is a summary information about " + ticker + ".")
+    print(Info['longBusinessSummary'])
+    print("---------------------------------------------------")
+
 
 
 
@@ -34,24 +39,25 @@ def grabDataYahooFinance(x):
     yahooFinanceTicker = yf.Ticker(ticker)
     dataFrame = pdr.get_data_yahoo(ticker, start=startDate, end=today)
     closesSince2000 = dataFrame['Adj Close']
+    yesterdaysClose = round(dataFrame['Adj Close'][-1],2)
     global fiftyDaySMA
-    fiftyDaySMA = 0
+    fiftyDaySMA = round(0,2)
     global twoHundredDaySMA
-    twoHundredDaySMA = 0
+    twoHundredDaySMA = round(0,2)
     global last5AverageVolume
-    last5AverageVolume = 0
+    last5AverageVolume = round(0,2)
     global last10AverageVolume
-    last10AverageVolume = 0
+    last10AverageVolume = round(0,2)
     global last20AverageVolume
-    last20AverageVolume = 0
+    last20AverageVolume = round(0,2)
     global last50AverageVolume
-    last50AverageVolume = 0
+    last50AverageVolume = round(0,2)
     global last100AverageVolume
-    last100AverageVolume = 0
+    last100AverageVolume = round(0,2)
     global last200AverageVolume
-    last200AverageVolume = 0
+    last200AverageVolume = round(0,2)
     global yearToDateVolume
-    yearToDateVolume = 0
+    yearToDateVolume = round(0,2)
 
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
@@ -63,11 +69,12 @@ def grabDataYahooFinance(x):
         last50Closes = dataFrame['Adj Close'][-50:]
         sumOfLast50 = sum(last50Closes)
         global fiftyDaySMA
-        fiftyDaySMA = sumOfLast50 / 50
+        fiftyDaySMA = round(sumOfLast50 / 50,2)
         last200Closes = dataFrame['Adj Close'][-200:]
         sumOfLast200 = sum(last200Closes)
         global twoHundredDaySMA
-        twoHundredDaySMA = sumOfLast200 / 200
+        twoHundredDaySMA = round(sumOfLast200 / 200,2)
+
 
     def calculateAverageVolumes(x):
         dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
@@ -99,9 +106,6 @@ def grabDataYahooFinance(x):
         lastYearVolume = dataFrame['Volume'][-365:]
         global yearToDateVolume
         yearToDateVolume = sum(lastYearVolume)/365
-
-
-
 
     # Function to determine RSI, <30 is considered oversold >70 is considered overbought
     # Add functions to determine if overbought and oversold and have the
@@ -191,11 +195,12 @@ def grabDataYahooFinance(x):
         window.mainloop()
 
     # Calling functions and running code
-    determineMovingAverages(userTicker)
-    determineRSI(userTicker)
     createCandleSticks(userTicker)
+    determineRSI(userTicker)
+    determineMovingAverages(userTicker)
     calculateAverageVolumes(userTicker)
 
+    print("Yesterday's adjusted close was -----> " + str(yesterdaysClose))
     print("50 Day Moving Average ---> " + str(fiftyDaySMA))
     print("200 Day Moving Average ---> " + str(twoHundredDaySMA))
     print("Last 5 Days Average Volume -----> " + str(last5AverageVolume))
@@ -204,13 +209,12 @@ def grabDataYahooFinance(x):
     print("Last 50 Days Average Volume -----> " + str(last50AverageVolume))
     print("Last 100 Days Average Volume -----> " + str(last100AverageVolume))
     print("Last 200 Days Average Volume -----> " + str(last200AverageVolume))
-    print("Year To Date Average Volume -----> " + str(yearToDateVolume))
-
 
 # Run code
 userTicker = input('Enter a ticker for a stock in lowercase to \n generate a data frame'
           ' and to generate info about the stock: ')
 # generateStockData(userTicker)
+generateStockData(userTicker)
 grabDataYahooFinance(userTicker)
 
 
