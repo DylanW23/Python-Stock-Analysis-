@@ -38,26 +38,70 @@ def grabDataYahooFinance(x):
     fiftyDaySMA = 0
     global twoHundredDaySMA
     twoHundredDaySMA = 0
+    global last5AverageVolume
+    last5AverageVolume = 0
+    global last10AverageVolume
+    last10AverageVolume = 0
+    global last20AverageVolume
+    last20AverageVolume = 0
+    global last50AverageVolume
+    last50AverageVolume = 0
+    global last100AverageVolume
+    last100AverageVolume = 0
+    global last200AverageVolume
+    last200AverageVolume = 0
+    global yearToDateVolume
+    yearToDateVolume = 0
 
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
         print(col)
 
     # Determines the 50 day moving average for the stock the user inputs
-    def determineFiftyDayMA(x):
+    def determineMovingAverages(x):
         dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
         last50Closes = dataFrame['Adj Close'][-50:]
         sumOfLast50 = sum(last50Closes)
         global fiftyDaySMA
         fiftyDaySMA = sumOfLast50 / 50
-
-    # Determine the 200 day moving average for the stock the user inputs
-    def determine200DayMA(x):
-        dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
         last200Closes = dataFrame['Adj Close'][-200:]
         sumOfLast200 = sum(last200Closes)
         global twoHundredDaySMA
         twoHundredDaySMA = sumOfLast200 / 200
+
+    def calculateAverageVolumes(x):
+        dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+
+        last5Volume = dataFrame['Volume'][-5:]
+        global last5AverageVolume
+        last5AverageVolume = sum(last5Volume)/5
+
+        last10Volume = dataFrame['Volume'][-10:]
+        global last10AverageVolume
+        last10AverageVolume = sum(last10Volume)/10
+
+        last20Volume = dataFrame['Volume'][-20:]
+        global last20AverageVolume
+        last20AverageVolume = sum(last20Volume)/20
+
+        last50Volume = dataFrame['Volume'][-50:]
+        global last50AverageVolume
+        last50AverageVolume = sum(last50Volume)/50
+
+        last100Volume = dataFrame['Volume'][-100:]
+        global last100AverageVolume
+        last100AverageVolume = sum(last100Volume)/100
+
+        last200Volume = dataFrame['Volume'][-200:]
+        global last200AverageVolume
+        last200AverageVolume = sum(last200Volume)/200
+
+        lastYearVolume = dataFrame['Volume'][-365:]
+        global yearToDateVolume
+        yearToDateVolume = sum(lastYearVolume)/365
+
+
+
 
     # Function to determine RSI, <30 is considered oversold >70 is considered overbought
     # Add functions to determine if overbought and oversold and have the
@@ -133,32 +177,34 @@ def grabDataYahooFinance(x):
         mpfStyle = mpf.make_mpf_style(base_mpf_style="nightclouds", marketcolors=colors)
         mpf.plot(data, type="candle", style=mpfStyle, volume=True)
 
+    # Tkinter
+    # Add functionality to display all the information above on gui
+    def runTikinter():
+        window = Tk()
+        window.title('Plotting in Tkinter')
+        window.geometry("500x500")
+        plot_button = Button(master=window,
+                             height=2,
+                             width=10,
+                             text="Plot")
+        plot_button.pack()
+        window.mainloop()
 
     # Calling functions and running code
-    determine200DayMA(userTicker)
-    determineFiftyDayMA(userTicker)
+    determineMovingAverages(userTicker)
     determineRSI(userTicker)
     createCandleSticks(userTicker)
-
+    calculateAverageVolumes(userTicker)
 
     print("50 Day Moving Average ---> " + str(fiftyDaySMA))
     print("200 Day Moving Average ---> " + str(twoHundredDaySMA))
-
-
-
-
-
-# Tkinter
-def runTikinter():
-    window = Tk()
-    window.title('Plotting in Tkinter')
-    window.geometry("500x500")
-    plot_button = Button(master=window,
-                         height=2,
-                         width=10,
-                         text="Plot")
-    plot_button.pack()
-    window.mainloop()
+    print("Last 5 Days Average Volume -----> " + str(last5AverageVolume))
+    print("Last 10 Days Average Volume -----> " + str(last10AverageVolume))
+    print("Last 20 Days Average Volume -----> " + str(last20AverageVolume))
+    print("Last 50 Days Average Volume -----> " + str(last50AverageVolume))
+    print("Last 100 Days Average Volume -----> " + str(last100AverageVolume))
+    print("Last 200 Days Average Volume -----> " + str(last200AverageVolume))
+    print("Year To Date Average Volume -----> " + str(yearToDateVolume))
 
 
 # Run code
