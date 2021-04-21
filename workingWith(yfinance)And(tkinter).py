@@ -40,6 +40,8 @@ def grabDataYahooFinance(x):
     dataFrame = pdr.get_data_yahoo(ticker, start=startDate, end=today)
     closesSince2000 = dataFrame['Adj Close']
     yesterdaysClose = round(dataFrame['Adj Close'][-1],2)
+    global twentyDaySMA
+    twentyDaySMA = round(0,2)
     global fiftyDaySMA
     fiftyDaySMA = round(0,2)
     global twoHundredDaySMA
@@ -70,10 +72,16 @@ def grabDataYahooFinance(x):
         sumOfLast50 = sum(last50Closes)
         global fiftyDaySMA
         fiftyDaySMA = round(sumOfLast50 / 50,2)
+
         last200Closes = dataFrame['Adj Close'][-200:]
         sumOfLast200 = sum(last200Closes)
         global twoHundredDaySMA
         twoHundredDaySMA = round(sumOfLast200 / 200,2)
+
+        last20Closes = dataFrame['Adj Close'][-20:]
+        sumOfLast20 = sum(last20Closes)
+        global twentyDaySMA
+        twentyDaySMA = round(sumOfLast20/20,2)
 
 
     def calculateAverageVolumes(x):
@@ -181,6 +189,39 @@ def grabDataYahooFinance(x):
         mpfStyle = mpf.make_mpf_style(base_mpf_style="nightclouds", marketcolors=colors)
         mpf.plot(data, type="candle", style=mpfStyle, volume=True)
 
+    # IMPORTANT TO NOTE
+    # This will show fib retracement levels for the dates inputted
+    # They could change based on time frame
+    # Need to add functionality to be able to show multiple time frames
+    def fibRetracement(x):
+        dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+        # Grabs max and min of adjusted close data for time frame
+        priceMin = dataFrame['Adj Close'].min()
+        priceMax = dataFrame['Adj Close'].max()
+        # Fib calculations
+        diff = priceMax-priceMin
+        level1 = priceMax - (.236*diff)
+        level2 = priceMax - (.382*diff)
+        level3 = priceMax - (.618*diff)
+        print("Level", "Price")
+        print("0 ", priceMax)
+        print(".236", level1)
+        print(".382", level2)
+        print(".618", level3)
+        print("1", priceMin)
+        # Graphing the data
+        fig, ax = plt.subplots()
+        ax.plot(dataFrame['Adj Close'], color='white')
+        ax.axhspan(level1, priceMin, alpha=0.4, color='lightsalmon')
+        ax.axhspan(level2, level1, alpha=0.5, color='palegoldenrod')
+        ax.axhspan(level3, level2, alpha=0.5, color='palegreen')
+        ax.axhspan(priceMax, level3, alpha=0.5, color='powderblue')
+        plt.ylabel("Price")
+        plt.xlabel("Date")
+        plt.legend(loc=2)
+        ax.set_facecolor('silver')
+        plt.show()
+
     # Tkinter
     # Add functionality to display all the information above on gui
     def runTikinter():
@@ -199,15 +240,14 @@ def grabDataYahooFinance(x):
     determineRSI(userTicker)
     determineMovingAverages(userTicker)
     calculateAverageVolumes(userTicker)
+    fibRetracement(userTicker)
 
     print("Yesterday's adjusted close was -----> " + str(yesterdaysClose))
+    print("20 Day Moving Average -----> " + str(twentyDaySMA))
     print("50 Day Moving Average ---> " + str(fiftyDaySMA))
     print("200 Day Moving Average ---> " + str(twoHundredDaySMA))
-    print("Last 5 Days Average Volume -----> " + str(last5AverageVolume))
-    print("Last 10 Days Average Volume -----> " + str(last10AverageVolume))
     print("Last 20 Days Average Volume -----> " + str(last20AverageVolume))
     print("Last 50 Days Average Volume -----> " + str(last50AverageVolume))
-    print("Last 100 Days Average Volume -----> " + str(last100AverageVolume))
     print("Last 200 Days Average Volume -----> " + str(last200AverageVolume))
 
 # Run code
