@@ -7,7 +7,7 @@ from tkinter import *
 import yfinance as yf
 import mplfinance as mpf
 
-yf.pdr_override()
+# yf.pdr_override()
 today = date.today()
 startDate = "2020-01-01"
 
@@ -60,13 +60,17 @@ def grabDataYahooFinance(x):
     last200AverageVolume = round(0,2)
     global yearToDateVolume
     yearToDateVolume = round(0,2)
-
+    global twelveDayEMA, twentySixDayEMA, fiftyDayEMA, twoHundredDayEMA
+    twelveDayEMA = round(0,2)
+    twentySixDayEMA = round(0,2)
+    fiftyDayEMA = round(0,2)
+    twoHundredDayEMA = round(0,2)
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
         print(col)
 
     # Determines the 50 day moving average for the stock the user inputs
-    def determineMovingAverages(x):
+    def determineSimpleMovingAverages(x):
         dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
         last50Closes = dataFrame['Adj Close'][-50:]
         sumOfLast50 = sum(last50Closes)
@@ -82,6 +86,15 @@ def grabDataYahooFinance(x):
         sumOfLast20 = sum(last20Closes)
         global twentyDaySMA
         twentyDaySMA = round(sumOfLast20/20,2)
+
+    def MACD(x):
+        global twelveDayEMA, twentySixDayEMA, fiftyDayEMA, twoHundredDayEMA
+        dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+        multiplyer12 = (2/(12+1))
+        multiplyer26 = (2/(26+1))
+        multiplyer50 = (2/(50+1))
+        multiplyer200 = (2/(200+1))
+
 
 
     def calculateAverageVolumes(x):
@@ -136,6 +149,7 @@ def grabDataYahooFinance(x):
         print(RSI)
         last14RSI = RSI[-14:]
         print(last14RSI)
+
         # Code for plotting
         def plotRSI():
             combined = pd.DataFrame()
@@ -175,7 +189,7 @@ def grabDataYahooFinance(x):
             ax2.tick_params(axis="y", color="white")
 
             plt.show()
-        plotRSI()
+        # plotRSI()
 
     # Creates candlesticks for the stock / etf
     # Add functionality to click on candlesticks to see the highs, lows, opens and closes
@@ -210,21 +224,30 @@ def grabDataYahooFinance(x):
         print(".618", level3)
         print("1", priceMin)
         # Graphing the data
-        fig, ax = plt.subplots()
-        ax.plot(dataFrame['Adj Close'], color='white')
-        ax.axhspan(level1, priceMin, alpha=0.4, color='lightsalmon')
-        ax.axhspan(level2, level1, alpha=0.5, color='palegoldenrod')
-        ax.axhspan(level3, level2, alpha=0.5, color='palegreen')
-        ax.axhspan(priceMax, level3, alpha=0.5, color='powderblue')
-        plt.ylabel("Price")
-        plt.xlabel("Date")
-        plt.legend(loc=2)
-        ax.set_facecolor('silver')
-        plt.show()
+        def plotData():
+            fig, ax = plt.subplots()
+            ax.plot(dataFrame['Adj Close'], color='white')
+            ax.axhspan(level1, priceMin, alpha=0.4, color='lightsalmon')
+            ax.axhspan(level2, level1, alpha=0.5, color='palegoldenrod')
+            ax.axhspan(level3, level2, alpha=0.5, color='palegreen')
+            ax.axhspan(priceMax, level3, alpha=0.5, color='powderblue')
+            ax.set_facecolor('silver')
+            plt.show()
+        # plotData()
+
+    def test(x):
+        data = yf.Ticker(x)
+        # Shows hourly opens for the last month
+        lastMonth = data.history(period='1mo', interval='1h')
+        print(lastMonth)
+        for col in lastMonth:
+            print(col)
+        print(lastMonth['Open'].tail(14))
+
 
     # Tkinter
     # Add functionality to display all the information above on gui
-    def runTikinter():
+    def runTkinter():
         window = Tk()
         window.title('Plotting in Tkinter')
         window.geometry("500x500")
@@ -235,12 +258,14 @@ def grabDataYahooFinance(x):
         plot_button.pack()
         window.mainloop()
 
-    # Calling functions and running code
-    createCandleSticks(userTicker)
+
+    # # Calling functions and running code
+    # createCandleSticks(userTicker)
     determineRSI(userTicker)
-    determineMovingAverages(userTicker)
+    determineSimpleMovingAverages(userTicker)
     calculateAverageVolumes(userTicker)
     fibRetracement(userTicker)
+    test(userTicker)
 
     print("Yesterday's adjusted close was -----> " + str(yesterdaysClose))
     print("20 Day Moving Average -----> " + str(twentyDaySMA))
@@ -256,7 +281,3 @@ userTicker = input('Enter a ticker for a stock in lowercase to \n generate a dat
 # generateStockData(userTicker)
 generateStockData(userTicker)
 grabDataYahooFinance(userTicker)
-
-
-
-
