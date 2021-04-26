@@ -65,6 +65,8 @@ def grabDataYahooFinance(x):
     twentySixDayEMA = round(0,2)
     fiftyDayEMA = round(0,2)
     twoHundredDayEMA = round(0,2)
+    global last14RSI
+    last14RSI = []
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
         print(col)
@@ -147,6 +149,7 @@ def grabDataYahooFinance(x):
         relativeStrength = averageGain/averageLoss
         RSI = 100 - (100/(1+relativeStrength))
         print(RSI)
+        global last14RSI
         last14RSI = RSI[-14:]
         print(last14RSI)
 
@@ -244,6 +247,14 @@ def grabDataYahooFinance(x):
             print(col)
         print(lastMonth['Open'].tail(14))
 
+    def RSIStrat():
+        for x in last14RSI:
+            if x<=30:
+                print("The rsi at this point is less than 30, which means oversold")
+            elif x>=70:
+                print("The rsi at this point is greater than 70 which means overbought")
+            elif x>30 and x<70:
+                print("This is in the middle which means normal action. ")
 
     # Tkinter
     # Add functionality to display all the information above on gui
@@ -262,6 +273,7 @@ def grabDataYahooFinance(x):
     # # Calling functions and running code
     # createCandleSticks(userTicker)
     determineRSI(userTicker)
+    RSIStrat()
     determineSimpleMovingAverages(userTicker)
     calculateAverageVolumes(userTicker)
     fibRetracement(userTicker)
