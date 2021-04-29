@@ -1,5 +1,8 @@
+import datetime
+
 import pandas_datareader as pdr
 from datetime import date
+import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -39,55 +42,73 @@ def grabDataYahooFinance(x):
     yahooFinanceTicker = yf.Ticker(ticker)
     dataFrame = pdr.get_data_yahoo(ticker, start=startDate, end=today)
     closesSince2000 = dataFrame['Adj Close']
-    yesterdaysClose = round(dataFrame['Adj Close'][-1],2)
+    yesterdaysClose = dataFrame['Adj Close'][-1]
     global twentyDaySMA
-    twentyDaySMA = round(0,2)
+    twentyDaySMA = 0
     global fiftyDaySMA
-    fiftyDaySMA = round(0,2)
+    fiftyDaySMA = 0
     global twoHundredDaySMA
-    twoHundredDaySMA = round(0,2)
+    twoHundredDaySMA = 0
     global last5AverageVolume
-    last5AverageVolume = round(0,2)
+    last5AverageVolume = 0
     global last10AverageVolume
-    last10AverageVolume = round(0,2)
+    last10AverageVolume = 0
     global last20AverageVolume
-    last20AverageVolume = round(0,2)
+    last20AverageVolume = 0
     global last50AverageVolume
-    last50AverageVolume = round(0,2)
+    last50AverageVolume = 0
     global last100AverageVolume
-    last100AverageVolume = round(0,2)
+    last100AverageVolume = 0
     global last200AverageVolume
-    last200AverageVolume = round(0,2)
+    last200AverageVolume = 0
     global yearToDateVolume
-    yearToDateVolume = round(0,2)
+    yearToDateVolume = 0
     global twelveDayEMA, twentySixDayEMA, fiftyDayEMA, twoHundredDayEMA
-    twelveDayEMA = round(0,2)
-    twentySixDayEMA = round(0,2)
-    fiftyDayEMA = round(0,2)
-    twoHundredDayEMA = round(0,2)
+    twelveDayEMA = 0
+    twentySixDayEMA = 0
+    fiftyDayEMA = 0
+    twoHundredDayEMA = 0
     global last14RSI
     last14RSI = []
+    global twentyDayDiff, fiftyDayDiff, twoHundredDayDiff
+    twentyDayDiff = 0
+    fiftyDayDiff = 0
+    twoHundredDayDiff = 0
+
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
         print(col)
 
     # Determines the 50 day moving average for the stock the user inputs
     def determineSimpleMovingAverages(x):
+
+
         dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+
+        # This prints all the data that can be generated from the dataframe
+        for col in dataFrame:
+            print(col)
+
         last50Closes = dataFrame['Adj Close'][-50:]
         sumOfLast50 = sum(last50Closes)
         global fiftyDaySMA
-        fiftyDaySMA = round(sumOfLast50 / 50,2)
+        fiftyDaySMA = sumOfLast50 / 50
 
         last200Closes = dataFrame['Adj Close'][-200:]
         sumOfLast200 = sum(last200Closes)
         global twoHundredDaySMA
-        twoHundredDaySMA = round(sumOfLast200 / 200,2)
+        twoHundredDaySMA = sumOfLast200 / 200
 
         last20Closes = dataFrame['Adj Close'][-20:]
         sumOfLast20 = sum(last20Closes)
         global twentyDaySMA
-        twentyDaySMA = round(sumOfLast20/20,2)
+        twentyDaySMA = sumOfLast20/20
+
+
+
+
+
+
 
     def MACD(x):
         global twelveDayEMA, twentySixDayEMA, fiftyDayEMA, twoHundredDayEMA
@@ -193,6 +214,26 @@ def grabDataYahooFinance(x):
 
             plt.show()
         # plotRSI()
+    #  RSI trading strategy
+    def RSIStrat():
+        oversold = 0
+        overbought = 0
+        normal = 0
+        for x in last14RSI:
+            if x<=30:
+                print("The rsi at this point is less than 30, which means oversold")
+                oversold += 1
+            elif x>=70:
+                print("The rsi at this point is greater than 70 which means overbought")
+                overbought += 1
+            elif x>30 and x<70:
+                print("This is in the middle which means normal action. ")
+                normal += 1
+
+        print(overbought)
+        print(oversold)
+        print(normal)
+
 
     # Creates candlesticks for the stock / etf
     # Add functionality to click on candlesticks to see the highs, lows, opens and closes
@@ -240,21 +281,29 @@ def grabDataYahooFinance(x):
 
     def test(x):
         data = yf.Ticker(x)
-        # Shows hourly opens for the last month
-        lastMonth = data.history(period='1mo', interval='1h')
-        print(lastMonth)
-        for col in lastMonth:
-            print(col)
-        print(lastMonth['Open'].tail(14))
 
-    def RSIStrat():
-        for x in last14RSI:
-            if x<=30:
-                print("The rsi at this point is less than 30, which means oversold")
-            elif x>=70:
-                print("The rsi at this point is greater than 70 which means overbought")
-            elif x>30 and x<70:
-                print("This is in the middle which means normal action. ")
+        # Shows weekly closes for the max time frame for the life of the stock
+        # Saves the closes and dates in their own variables
+        max_data_weekly_intervals = data.history(period='max', interval='1wk')
+        max_data_weekly_closes = (max_data_weekly_intervals['Close'])
+        max_data_weekly_intevrals_dates = max_data_weekly_intervals.index
+
+        two_year_daily_intervals = data.history(period='2y', interval='1d')
+        two_year_daily_closes = (two_year_daily_intervals['Close'])
+        two_year_daily_intervals_dates = two_year_daily_intervals.index
+
+
+        def plot_data(x, y):
+            x_axis = x
+            y_axis = y
+            plt.plot(x_axis,y_axis)
+            plt.xlabel("Date")
+            plt.ylabel("Price")
+            plt.show()
+
+        plot_data(max_data_weekly_intevrals_dates, max_data_weekly_closes)
+        plot_data(two_year_daily_intervals_dates, two_year_daily_closes)
+
 
     # Tkinter
     # Add functionality to display all the information above on gui
@@ -272,20 +321,22 @@ def grabDataYahooFinance(x):
 
     # # Calling functions and running code
     # createCandleSticks(userTicker)
-    determineRSI(userTicker)
-    RSIStrat()
-    determineSimpleMovingAverages(userTicker)
-    calculateAverageVolumes(userTicker)
-    fibRetracement(userTicker)
+    # determineRSI(userTicker)
+    # RSIStrat()
+    # determineSimpleMovingAverages(userTicker)
+    # calculateAverageVolumes(userTicker)
+    # fibRetracement(userTicker)
     test(userTicker)
 
     print("Yesterday's adjusted close was -----> " + str(yesterdaysClose))
     print("20 Day Moving Average -----> " + str(twentyDaySMA))
     print("50 Day Moving Average ---> " + str(fiftyDaySMA))
     print("200 Day Moving Average ---> " + str(twoHundredDaySMA))
-    print("Last 20 Days Average Volume -----> " + str(last20AverageVolume))
-    print("Last 50 Days Average Volume -----> " + str(last50AverageVolume))
-    print("Last 200 Days Average Volume -----> " + str(last200AverageVolume))
+
+
+    # print("Last 20 Days Average Volume -----> " + str(last20AverageVolume))
+    # print("Last 50 Days Average Volume -----> " + str(last50AverageVolume))
+    # print("Last 200 Days Average Volume -----> " + str(last200AverageVolume))
 
 # Run code
 userTicker = input('Enter a ticker for a stock in lowercase to \n generate a data frame'
