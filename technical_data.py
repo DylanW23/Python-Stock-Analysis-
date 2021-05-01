@@ -54,11 +54,11 @@ def grabDataYahooFinance(x):
     def moving_averages(x):
         data = yf.Ticker(x)
 
-        # Max data, daily closes
+        # Max period, daily closes
         max_daily_intervals = data.history(period='max', interval='1d')
         max_daily_closes = (max_daily_intervals['Close'])
         max_daily_intervals_dates = max_daily_intervals.index
-
+        # Yearly period, daily closes
         ytd_daily_intervals = data.history(period="ytd", interval='1d')
         ytd_daily_closes = ytd_daily_intervals['Close']
         ytd_intervals_dates = ytd_daily_intervals.index
@@ -79,11 +79,6 @@ def grabDataYahooFinance(x):
         print("200-Day SMA " + str(two_hundred_day_SMA[-1]))
         print("YTD-SMA " + str(ytd_SMA[-1]))
 
-        # Shows daily closes for a two year time frame of the stock
-        # Saves the closes and the dates in their own variables
-        two_year_daily_intervals = data.history(period='2y', interval='1d')
-        two_year_daily_closes = (two_year_daily_intervals['Close'])
-        two_year_daily_intervals_dates = two_year_daily_intervals.index
 
 
         def plot_data():
