@@ -43,68 +43,58 @@ def grabDataYahooFinance(x):
     dataFrame = pdr.get_data_yahoo(ticker, start=startDate, end=today)
     closesSince2000 = dataFrame['Adj Close']
     yesterdaysClose = dataFrame['Adj Close'][-1]
-    global twentyDaySMA
-    twentyDaySMA = 0
-    global fiftyDaySMA
-    fiftyDaySMA = 0
-    global twoHundredDaySMA
-    twoHundredDaySMA = 0
-    global last5AverageVolume
-    last5AverageVolume = 0
-    global last10AverageVolume
-    last10AverageVolume = 0
-    global last20AverageVolume
-    last20AverageVolume = 0
-    global last50AverageVolume
-    last50AverageVolume = 0
-    global last100AverageVolume
-    last100AverageVolume = 0
-    global last200AverageVolume
-    last200AverageVolume = 0
-    global yearToDateVolume
-    yearToDateVolume = 0
-    global twelveDayEMA, twentySixDayEMA, fiftyDayEMA, twoHundredDayEMA
-    twelveDayEMA = 0
-    twentySixDayEMA = 0
-    fiftyDayEMA = 0
-    twoHundredDayEMA = 0
     global last14RSI
     last14RSI = []
-    global twentyDayDiff, fiftyDayDiff, twoHundredDayDiff
-    twentyDayDiff = 0
-    fiftyDayDiff = 0
-    twoHundredDayDiff = 0
 
     # This prints all the data that can be generated from the dataframe
     for col in dataFrame:
         print(col)
 
-    # Determines the 50 day moving average for the stock the user inputs
-    def determineSimpleMovingAverages(x):
+
+    def moving_averages(x):
+        data = yf.Ticker(x)
+
+        # Max data, daily closes
+        max_daily_intervals = data.history(period='max', interval='1d')
+        max_daily_closes = (max_daily_intervals['Close'])
+        max_daily_intervals_dates = max_daily_intervals.index
+
+        ytd_daily_intervals = data.history(period="ytd", interval='1d')
+        ytd_daily_closes = ytd_daily_intervals['Close']
+        ytd_intervals_dates = ytd_daily_intervals.index
+
+        # Creates SMA based off ytd data
+        five_day_SMA = max_daily_closes.rolling(5, min_periods=1).mean()
+        ten_day_SMA = max_daily_closes.rolling(10, min_periods=1).mean()
+        twenty_day_SMA = max_daily_closes.rolling(20, min_periods=1).mean()
+        fifty_day_SMA = max_daily_closes.rolling(50, min_periods=1).mean()
+        one_hundred_day_SMA = max_daily_closes.rolling(100, min_periods=1).mean()
+        two_hundred_day_SMA = max_daily_closes.rolling(200, min_periods=1).mean()
+        ytd_SMA = ytd_daily_closes.rolling(365, min_periods=1).mean()
+        print("5-Day SMA " + str(five_day_SMA[-1]))
+        print("10-Day SMA " + str(ten_day_SMA[-1]))
+        print("20-Day SMA " + str(twenty_day_SMA[-1]))
+        print("50-Day SMA " + str(fifty_day_SMA[-1]))
+        print("100-Day SMA " + str(one_hundred_day_SMA[-1]))
+        print("200-Day SMA " + str(two_hundred_day_SMA[-1]))
+        print("YTD-SMA " + str(ytd_SMA[-1]))
+
+        # Shows daily closes for a two year time frame of the stock
+        # Saves the closes and the dates in their own variables
+        two_year_daily_intervals = data.history(period='2y', interval='1d')
+        two_year_daily_closes = (two_year_daily_intervals['Close'])
+        two_year_daily_intervals_dates = two_year_daily_intervals.index
 
 
-        dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+        def plot_data():
+            plt.plot(ytd_intervals_dates,ytd_daily_closes, label = "YTD Closes")
+            plt.plot(ytd_intervals_dates, ytd_SMA, label="YTD SMA", linestyle="--")
+            plt.xlabel("Date")
+            plt.ylabel("Price")
+            plt.legend()
+            plt.show()
 
-        # This prints all the data that can be generated from the dataframe
-        for col in dataFrame:
-            print(col)
-
-        last50Closes = dataFrame['Adj Close'][-50:]
-        sumOfLast50 = sum(last50Closes)
-        global fiftyDaySMA
-        fiftyDaySMA = sumOfLast50 / 50
-
-        last200Closes = dataFrame['Adj Close'][-200:]
-        sumOfLast200 = sum(last200Closes)
-        global twoHundredDaySMA
-        twoHundredDaySMA = sumOfLast200 / 200
-
-        last20Closes = dataFrame['Adj Close'][-20:]
-        sumOfLast20 = sum(last20Closes)
-        global twentyDaySMA
-        twentyDaySMA = sumOfLast20/20
-
-
+        plot_data()
 
 
 
@@ -279,30 +269,6 @@ def grabDataYahooFinance(x):
             plt.show()
         # plotData()
 
-    def test(x):
-        data = yf.Ticker(x)
-
-        # Shows weekly closes for the max time frame for the life of the stock
-        # Saves the closes and dates in their own variables
-        max_data_weekly_intervals = data.history(period='max', interval='1wk')
-        max_data_weekly_closes = (max_data_weekly_intervals['Close'])
-        max_data_weekly_intevrals_dates = max_data_weekly_intervals.index
-
-        two_year_daily_intervals = data.history(period='2y', interval='1d')
-        two_year_daily_closes = (two_year_daily_intervals['Close'])
-        two_year_daily_intervals_dates = two_year_daily_intervals.index
-
-
-        def plot_data(x, y):
-            x_axis = x
-            y_axis = y
-            plt.plot(x_axis,y_axis)
-            plt.xlabel("Date")
-            plt.ylabel("Price")
-            plt.show()
-
-        plot_data(max_data_weekly_intevrals_dates, max_data_weekly_closes)
-        plot_data(two_year_daily_intervals_dates, two_year_daily_closes)
 
 
     # Tkinter
@@ -323,15 +289,12 @@ def grabDataYahooFinance(x):
     # createCandleSticks(userTicker)
     # determineRSI(userTicker)
     # RSIStrat()
-    # determineSimpleMovingAverages(userTicker)
     # calculateAverageVolumes(userTicker)
     # fibRetracement(userTicker)
-    test(userTicker)
+    moving_averages(userTicker)
 
     print("Yesterday's adjusted close was -----> " + str(yesterdaysClose))
-    print("20 Day Moving Average -----> " + str(twentyDaySMA))
-    print("50 Day Moving Average ---> " + str(fiftyDaySMA))
-    print("200 Day Moving Average ---> " + str(twoHundredDaySMA))
+
 
 
     # print("Last 20 Days Average Volume -----> " + str(last20AverageVolume))
