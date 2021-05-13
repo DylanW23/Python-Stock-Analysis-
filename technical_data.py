@@ -8,6 +8,7 @@ import pandas as pd
 from tkinter import *
 import yfinance as yf
 import mplfinance as mpf
+import pprint
 
 # yf.pdr_override()
 today = date.today()
@@ -29,9 +30,8 @@ def generateStockData(x):
     Recomendations = yfTicker.recommendations
     print("---------------------------------------------------")
     print("Here is a summary information about " + ticker + ".")
-    print(Info['longBusinessSummary'])
+    pprint.pprint(Info['longBusinessSummary'])
     print("---------------------------------------------------")
-
 # Function for letting the user grab data from yfinance
 def grabDataYahooFinance(x):
     # User input and passing it to yfinance
@@ -39,7 +39,6 @@ def grabDataYahooFinance(x):
     data = yf.Ticker(x)
     yahooFinanceTicker = yf.Ticker(ticker)
     dataFrame = pdr.get_data_yahoo(ticker, start=startDate, end=today)
-
     # Daily closes for the total lifetime of a stock
     max_daily_intervals = data.history(period='max', interval='1d')
     # A list of all the daily closes for total lifetime of stock
@@ -50,7 +49,6 @@ def grabDataYahooFinance(x):
     max_daily_intervals_dates = max_daily_intervals.index
     # Yesterdays close of the stock price
     yesterdays_close = max_daily_closes[-1]
-
     # Year to date period, daily closes
     # This is used to calculate the ytd moving average
     ytd_daily_intervals = data.history(period="ytd", interval='1d')
@@ -58,8 +56,6 @@ def grabDataYahooFinance(x):
     ytd_daily_volume = ytd_daily_intervals['Volume']
     ytd_intervals_dates = ytd_daily_intervals.index
     # This prints all the data that can be generated from the dataframe
-
-
 
     def simple_moving_averages(x):
         # Creates SMA based off ytd data
@@ -83,16 +79,14 @@ def grabDataYahooFinance(x):
             plt.grid(True, color='k', linestyle=":")
             plt.xlabel("Date")
             plt.ylabel("Price")
-            plt.title(ticker + " Moving Averages, 2 Year Time Frame")
-            plt.plot(max_daily_intervals_dates[-730:],max_daily_closes[-730:], label = "YTD Closes")
+            plt.title(ticker + " SMAs, 1 Year Time Frame")
+            plt.plot(max_daily_intervals_dates[-365:],max_daily_closes[-365:], label = "YTD Closes")
             # plt.plot(ytd_intervals_dates, ytd_SMA, label="YTD SMA", linestyle="--")
-            plt.plot(max_daily_intervals_dates[-730:], twenty_day_SMA[-730:], label="20 SMA", linestyle="--")
-            plt.plot(max_daily_intervals_dates[-730:], fifty_day_SMA[-730:], label="50 SMA", linestyle="--")
-            plt.plot(max_daily_intervals_dates[-730:], two_hundred_day_SMA[-730:], label="200 SMA", linestyle="--")
-
+            plt.plot(max_daily_intervals_dates[-365:], twenty_day_SMA[-365:], label="20 SMA", linestyle="--")
+            plt.plot(max_daily_intervals_dates[-365:], fifty_day_SMA[-365:], label="50 SMA", linestyle="--")
+            plt.plot(max_daily_intervals_dates[-365:], two_hundred_day_SMA[-365:], label="200 SMA", linestyle="--")
             plt.legend()
             plt.show()
-
         plot_data()
 
     def estimated_moving_averages(x):
@@ -111,6 +105,21 @@ def grabDataYahooFinance(x):
         print("50 EMA - " + str(fifty_day_ema[-1]))
         print("200 EMA - " + str(two_hundred_day_ema[-1]))
         MACD = twelve_day_ema - twenty_six_day_ema
+
+        def plot_data():
+            rcParams['figure.figsize'] = 12,6
+            plt.grid(True, color='k', linestyle=":")
+            plt.xlabel("Date")
+            plt.ylabel("Price")
+            plt.title(ticker + " EMAs, 3 Month Time Frame")
+            plt.plot(max_daily_intervals_dates[-90:],max_daily_closes[-90:], label = "YTD Closes")
+            plt.plot(max_daily_intervals_dates[-90:], twelve_day_ema[-90:], label="12 EMA", linestyle="--")
+            plt.plot(max_daily_intervals_dates[-90:], twenty_day_ema[-90:], label="20 EMA", linestyle="--")
+            plt.plot(max_daily_intervals_dates[-90:], fifty_day_ema[-90:], label="50 EMA", linestyle="--")
+            plt.plot(max_daily_intervals_dates[-90:], two_hundred_day_ema  [-90:], label="200 SMA", linestyle="--")
+            plt.legend()
+            plt.show()
+        plot_data()
 
 
     def calculateAverageVolumes(x):
