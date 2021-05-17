@@ -107,43 +107,42 @@ def grabDataYahooFinance(x):
                 plt.legend()
                 plt.show()
         def calculate_average_volumes(x):
-                    last5Volume = max_daily_volumes[-5:]
-                    last5AverageVolume = sum(last5Volume) / 5
-                    last10Volume = max_daily_volumes[-10:]
-                    last10AverageVolume = sum(last10Volume) / 10
-                    last20Volume = max_daily_volumes[-20:]
-                    last20AverageVolume = sum(last20Volume) / 20
-                    last50Volume = max_daily_volumes[-50:]
-                    last50AverageVolume = sum(last50Volume) / 50
-                    last100Volume = max_daily_volumes[-100:]
-                    last100AverageVolume = sum(last100Volume) / 100
-                    last200Volume = max_daily_volumes[-200:]
-                    last200AverageVolume = sum(last200Volume) / 200
-                    print("5-Day Volume " + str(last5AverageVolume))
-                    print("10-Day Volume " + str(last10AverageVolume))
-                    print("20-Day Volume " + str(last20AverageVolume))
-                    print("50-Day Volume " + str(last50AverageVolume))
-                    print("100-Day Volume " + str(last100AverageVolume))
-                    print("200-Day Volume " + str(last200AverageVolume))
+            last5Volume = max_daily_volumes[-5:]
+            last5AverageVolume = sum(last5Volume) / 5
+            last10Volume = max_daily_volumes[-10:]
+            last10AverageVolume = sum(last10Volume) / 10
+            last20Volume = max_daily_volumes[-20:]
+            last20AverageVolume = sum(last20Volume) / 20
+            last50Volume = max_daily_volumes[-50:]
+            last50AverageVolume = sum(last50Volume) / 50
+            last100Volume = max_daily_volumes[-100:]
+            last100AverageVolume = sum(last100Volume) / 100
+            last200Volume = max_daily_volumes[-200:]
+            last200AverageVolume = sum(last200Volume) / 200
+            print("5-Day Volume " + str(last5AverageVolume))
+            print("10-Day Volume " + str(last10AverageVolume))
+            print("20-Day Volume " + str(last20AverageVolume))
+            print("50-Day Volume " + str(last50AverageVolume))
+            print("100-Day Volume " + str(last100AverageVolume))
+            print("200-Day Volume " + str(last200AverageVolume))
         def determine_RSI(x):
-                    # Code for calcualting the RSI of stock
-                    delta = dataFrame['Adj Close'].diff(1)
-                    delta.dropna(inplace=True)
-                    positive = delta.copy()
-                    negative = delta.copy()
-                    positive[positive < 0] = 0
-                    negative[negative > 0] = 0
-                    days = 14
-                    averageGain = positive.rolling(window=days).mean()
-                    averageLoss = abs(negative.rolling(window=days).mean())
-                    relativeStrength = averageGain / averageLoss
-                    RSI = 100 - (100 / (1 + relativeStrength))
-                    global last14RSI
-                    last14RSI = RSI[-14:]
-                    print(last14RSI)
-
-                    # Code for plotting
-                    def plotRSI():
+            # Code for calcualting the RSI of stock
+            delta = dataFrame['Adj Close'].diff(1)
+            delta.dropna(inplace=True)
+            positive = delta.copy()
+            negative = delta.copy()
+            positive[positive < 0] = 0
+            negative[negative > 0] = 0
+            days = 14
+            averageGain = positive.rolling(window=days).mean()
+            averageLoss = abs(negative.rolling(window=days).mean())
+            relativeStrength = averageGain / averageLoss
+            RSI = 100 - (100 / (1 + relativeStrength))
+            global last14RSI
+            last14RSI = RSI[-14:]
+            print(last14RSI)
+            # Code for plotting
+            def plotRSI():
                         combined = pd.DataFrame()
                         combined['Adj Close'] = dataFrame['Adj Close']
                         combined['RSI'] = RSI
@@ -180,11 +179,9 @@ def grabDataYahooFinance(x):
                         ax2.tick_params(axis="y", color="white")
 
                         plt.show()
-
-                    plotRSI()
-
-                    #  RSI trading strategy
-                    def RSIStrat():
+            plotRSI()
+            #  RSI trading strategy
+            def RSIStrat():
                         oversold = 0
                         overbought = 0
                         normal = 0
@@ -207,8 +204,7 @@ def grabDataYahooFinance(x):
                             print('Asset is oversold, buy signal.')
                         elif (normal > overbought) & (normal > oversold):
                             print('Asset is in normal range, neutral signal.')
-
-                    RSIStrat()
+            RSIStrat()
         def fib_retracement(x):
                     dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
                     # Grabs max and min of adjusted close data for time frame
@@ -241,7 +237,7 @@ def grabDataYahooFinance(x):
         calc_moving_averages(x)
         calculate_average_volumes(x)
         determine_RSI(x)
-        fib_retracement(x)
+        # fib_retracement(x)
 
         window = Tk()
         window.title('Stock Analysis')
@@ -277,7 +273,8 @@ def grabDataYahooFinance(x):
         fifty_EMA_lbl.grid(column=2, row = 3, padx=10)
         one_hundred_EMA_lbl.grid(column=2, row = 4, padx=10)
         two_hundred_EMA_lbl.grid(column=2, row = 5, padx=10)
-        # Putting fib retracement on gui
+        # Putting average volumes on gui
+
 
         # Run tkinter
         window.mainloop()
