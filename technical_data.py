@@ -16,20 +16,7 @@ startDate = "2020-01-01"
 
 
 
-# Function to generate stock data using yfinance
-def generateStockData(x):
-    ticker = x.strip().upper()
-    yfTicker = yf.Ticker(ticker)
-    Info = yfTicker.info
-    Dividends = yfTicker.dividends
-    Actions = yfTicker.actions
-    Splits = yfTicker.splits
-    Financials = yfTicker.financials
-    majorHolders = yfTicker.major_holders
-    instituionalHolders = yfTicker.institutional_holders
-    Recomendations = yfTicker.recommendations
-    # print("Here is a summary information about " + ticker + ".")
-    # pprint.pprint(Info['longBusinessSummary'])
+
 # Function for letting the user grab data from yfinance
 def grabDataYahooFinance(x):
     # User input and passing it to yfinance
@@ -53,6 +40,35 @@ def grabDataYahooFinance(x):
     ytd_daily_closes = ytd_daily_intervals['Close']
     ytd_daily_volume = ytd_daily_intervals['Volume']
     ytd_intervals_dates = ytd_daily_intervals.index
+
+    # Function to generate stock data using yfinance
+    def generateStockData(x):
+        global long_business_summary
+        ticker = x.strip().upper()
+        yfTicker = yf.Ticker(ticker)
+        Info = yfTicker.info
+        Dividends = yfTicker.dividends
+        Actions = yfTicker.actions
+        Splits = yfTicker.splits
+        Financials = yfTicker.financials
+        major_holders = yfTicker.major_holders
+        instituional_holders = yfTicker.institutional_holders
+        Recomendations = yfTicker.recommendations
+        stock_long_name = Info['longName']
+        long_business_summary = Info['longBusinessSummary']
+        beta = Info['beta']
+        fifty_two_week_high = Info['fiftyTwoWeekHigh']
+        fifty_two_week_low = Info['fiftyTwoWeekLow']
+        forward_stock_EPS = Info['forwardEps']
+        forward_stock_PE = Info['forwardPE']
+        trailing_stock_EPS = Info['trailingEps']
+        trailing_stock_PE = Info['trailingPE']
+
+        pprint.pprint(Info)
+        pprint.pprint(Financials)
+        pprint.pprint(major_holders)
+        pprint.pprint(instituional_holders)
+        pprint.pprint(Recomendations)
 
 
     def create_tkinter():
@@ -103,9 +119,11 @@ def grabDataYahooFinance(x):
                 plt.plot(max_daily_intervals_dates[-90:], twelve_day_EMA[-90:], label="12 EMA", linestyle="--")
                 plt.plot(max_daily_intervals_dates[-90:], twenty_day_EMA[-90:], label="20 EMA", linestyle="--")
                 plt.plot(max_daily_intervals_dates[-90:], fifty_day_EMA[-90:], label="50 EMA", linestyle="--")
-                plt.plot(max_daily_intervals_dates[-90:], two_hundred_day_EMA[-90:], label="200 SMA", linestyle="--")
+                plt.plot(max_daily_intervals_dates[-90:], two_hundred_day_EMA[-90:], label="200 EMA", linestyle="--")
                 plt.legend()
                 plt.show()
+            plot_SMA_data()
+            plot_EMA_data()
         def calculate_average_volumes(x):
             last5Volume = max_daily_volumes[-5:]
             last5AverageVolume = sum(last5Volume) / 5
@@ -143,97 +161,96 @@ def grabDataYahooFinance(x):
             print(last14RSI)
             # Code for plotting
             def plotRSI():
-                        combined = pd.DataFrame()
-                        combined['Adj Close'] = dataFrame['Adj Close']
-                        combined['RSI'] = RSI
-                        plt.figure(figsize=(12, 8))
-                        # Code for axis 1 for adjusted close value plot
-                        ax1 = plt.subplot(211)
-                        ax1.plot(combined.index, combined['Adj Close'], color='lightgray')
-                        ax1.set_title("Adjusted Close Price", color='white')
+                combined = pd.DataFrame()
+                combined['Adj Close'] = dataFrame['Adj Close']
+                combined['RSI'] = RSI
+                plt.figure(figsize=(12, 8))
+                # Code for axis 1 for adjusted close value plot
+                ax1 = plt.subplot(211)
+                ax1.grid(True, color='k', linestyle=':')
+                ax1.plot(combined.index[-14:], combined['Adj Close'][-14:], color='lightgray')
+                ax1.set_title("Adjusted Close Price Last 14 Days")
 
-                        ax1.grid(True, color='#555555')
-                        ax1.set_axisbelow(True)
-                        ax1.set_facecolor('black')
-                        ax1.figure.set_facecolor('#121212')
-                        ax1.tick_params(axis="x", color="white")
-                        ax1.tick_params(axis="y", color="white")
+                # ax1.grid(True, color='#555555')
+                ax1.set_axisbelow(True)
+                ax1.set_facecolor('gray')
+                # ax1.figure.set_facecolor('#121212')
+                ax1.tick_params(axis="x", color="white")
+                ax1.tick_params(axis="y", color="white")
 
-                        # Code for axis 2 for RSI
-                        ax2 = plt.subplot(212, sharex=ax1)
-                        ax2.plot(combined.index, combined['RSI'], color='lightgray')
-                        ax2.axhline(0, linestyle='--', alpha=0.5, color='#ff0000')
-                        ax2.axhline(10, linestyle='--', alpha=0.5, color='#ffaa00')
-                        ax2.axhline(20, linestyle='--', alpha=0.5, color='#00ff00')
-                        ax2.axhline(30, linestyle='--', alpha=0.5, color='#cccccc')
-                        ax2.axhline(70, linestyle='--', alpha=0.5, color='#cccccc')
-                        ax2.axhline(80, linestyle='--', alpha=0.5, color='#00ff00')
-                        ax2.axhline(90, linestyle='--', alpha=0.5, color='#ffaa00')
-                        ax2.axhline(100, linestyle='--', alpha=0.5, color='#ff0000')
+                # Code for axis 2 for RSI
+                ax2 = plt.subplot(212, sharex=ax1)
+                ax2.plot(combined.index[-14:], combined['RSI'][-14:], color='lightgray')
+                ax2.axhline(0, linestyle='--', alpha=0.5, color='#ff0000')
+                ax2.axhline(10, linestyle='--', alpha=0.5, color='#ffaa00')
+                ax2.axhline(20, linestyle='--', alpha=0.5, color='#00ff00')
+                ax2.axhline(30, linestyle='--', alpha=0.5, color='#cccccc')
+                ax2.axhline(70, linestyle='--', alpha=0.5, color='#cccccc')
+                ax2.axhline(80, linestyle='--', alpha=0.5, color='#00ff00')
+                ax2.axhline(90, linestyle='--', alpha=0.5, color='#ffaa00')
+                ax2.axhline(100, linestyle='--', alpha=0.5, color='#ff0000')
 
-                        ax2.set_title("RSI Value")
-                        ax2.grid(False)
-                        ax2.set_axisbelow(True)
-                        ax2.set_facecolor('black')
-                        ax2.tick_params(axis="x", color="white")
-                        ax2.tick_params(axis="y", color="white")
+                ax2.set_title("RSI Value Last 14 Days")
+                ax2.grid(False)
+                ax2.set_axisbelow(True)
+                ax2.set_facecolor('gray')
+                ax2.tick_params(axis="x", color="white")
+                ax2.tick_params(axis="y", color="white")
 
-                        plt.show()
+                plt.show()
             plotRSI()
             #  RSI trading strategy
             def RSIStrat():
-                        oversold = 0
-                        overbought = 0
-                        normal = 0
-                        for x in last14RSI:
-                            if x <= 30:
-                                print("Oversold")
-                                oversold += 1
-                            elif x >= 70:
-                                print("Overbought")
-                                overbought += 1
-                            elif x > 30 and x < 70:
-                                print("Neutral")
-                                normal += 1
-                        print(overbought)
-                        print(oversold)
-                        print(normal)
-                        if (overbought > oversold) & (overbought > normal):
-                            print('Asset is overbought, sell signal.')
-                        elif (oversold > overbought) & (oversold > normal):
-                            print('Asset is oversold, buy signal.')
-                        elif (normal > overbought) & (normal > oversold):
-                            print('Asset is in normal range, neutral signal.')
+                oversold = 0
+                overbought = 0
+                normal = 0
+                for x in last14RSI:
+                    if x <= 30:
+                        oversold += 1
+                    elif x >= 70:
+                        overbought += 1
+                    elif x > 30 and x < 70:
+                        normal += 1
+                print(overbought)
+                print(oversold)
+                print(normal)
+                if (overbought > oversold) & (overbought > normal):
+                    print('Asset is overbought, sell signal.')
+                elif (oversold > overbought) & (oversold > normal):
+                    print('Asset is oversold, buy signal.')
+                elif (normal > overbought) & (normal > oversold):
+                    print('Asset is in normal range, neutral signal.')
             RSIStrat()
         def fib_retracement(x):
-                    dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
-                    # Grabs max and min of adjusted close data for time frame
-                    priceMin = dataFrame['Adj Close'].min()
-                    priceMax = dataFrame['Adj Close'].max()
-                    # Fib calculations
-                    diff = priceMax - priceMin
-                    level1 = priceMax - (.236 * diff)
-                    level2 = priceMax - (.382 * diff)
-                    level3 = priceMax - (.618 * diff)
-                    print("Level", "Price")
-                    print("0 ", priceMax)
-                    print(".236", level1)
-                    print(".382", level2)
-                    print(".618", level3)
-                    print("1", priceMin)
+            dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
+            # Grabs max and min of adjusted close data for time frame
+            priceMin = dataFrame['Adj Close'].min()
+            priceMax = dataFrame['Adj Close'].max()
+            # Fib calculations
+            diff = priceMax - priceMin
+            level1 = priceMax - (.236 * diff)
+            level2 = priceMax - (.382 * diff)
+            level3 = priceMax - (.618 * diff)
+            print("Level", "Price")
+            print("0 ", priceMax)
+            print(".236", level1)
+            print(".382", level2)
+            print(".618", level3)
+            print("1", priceMin)
 
-                    # Graphing the data
-                    def plotData():
-                        fig, ax = plt.subplots()
-                        ax.plot(dataFrame['Adj Close'], color='white')
-                        ax.axhspan(level1, priceMin, alpha=0.4, color='lightsalmon')
-                        ax.axhspan(level2, level1, alpha=0.5, color='palegoldenrod')
-                        ax.axhspan(level3, level2, alpha=0.5, color='palegreen')
-                        ax.axhspan(priceMax, level3, alpha=0.5, color='powderblue')
-                        ax.set_facecolor('silver')
-                        plt.show()
-                    # plotData()
-        # Calling cuntions
+            # Graphing the data
+            def plotData():
+                fig, ax = plt.subplots()
+                ax.plot(dataFrame['Adj Close'], color='white')
+                ax.axhspan(level1, priceMin, alpha=0.4, color='lightsalmon')
+                ax.axhspan(level2, level1, alpha=0.5, color='palegoldenrod')
+                ax.axhspan(level3, level2, alpha=0.5, color='palegreen')
+                ax.axhspan(priceMax, level3, alpha=0.5, color='powderblue')
+                ax.set_facecolor('silver')
+                plt.show()
+            # plotData()
+        # Calling funtions
+        generateStockData(x)
         calc_moving_averages(x)
         calculate_average_volumes(x)
         # determine_RSI(x)
@@ -257,6 +274,8 @@ def grabDataYahooFinance(x):
         fifty_EMA_lbl =  Label(window, text="50-EMA --->" + str(fifty_day_EMA[-1]))
         one_hundred_EMA_lbl =  Label(window, text="100-EMA --->" + str(one_hundred_day_EMA[-1]))
         two_hundred_EMA_lbl =  Label(window, text="200-EMA --->" + str(two_hundred_day_EMA[-1]))
+        # Stock information labels
+        long_business_summary_lbl = Label(window,text='Business Summary ---> ' + long_business_summary, wraplength=500,justify='left')
         # Putting yesterdays close on gui
         yesterdays_close_lbl.grid(column=0, row=0, padx=10)
         # Putting the SMAs on gui
@@ -273,8 +292,8 @@ def grabDataYahooFinance(x):
         fifty_EMA_lbl.grid(column=2, row = 3, padx=10)
         one_hundred_EMA_lbl.grid(column=2, row = 4, padx=10)
         two_hundred_EMA_lbl.grid(column=2, row = 5, padx=10)
-        # Putting average volumes on gui
-
+        # Putting stock information on gui
+        long_business_summary_lbl.grid(column=1,pady=15)
 
         # Run tkinter
         window.mainloop()
@@ -292,5 +311,4 @@ def grabDataYahooFinance(x):
 userTicker = input('Enter a ticker for a stock in lowercase to \n generate a data frame'
           ' and to generate info about the stock: ')
 # generateStockData(userTicker)
-generateStockData(userTicker)
 grabDataYahooFinance(userTicker)
