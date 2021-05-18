@@ -1,9 +1,15 @@
+import tkinter
+
 import pandas_datareader as pdr
 from datetime import date
 import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 import pandas as pd
 from tkinter import *
 import yfinance as yf
@@ -125,6 +131,8 @@ def grabDataYahooFinance(x):
             plot_SMA_data()
             plot_EMA_data()
         def calculate_average_volumes(x):
+            global last5AverageVolume, last10AverageVolume, last20AverageVolume, last50AverageVolume
+            global last100AverageVolume, last200AverageVolume
             last5Volume = max_daily_volumes[-5:]
             last5AverageVolume = sum(last5Volume) / 5
             last10Volume = max_daily_volumes[-10:]
@@ -137,12 +145,6 @@ def grabDataYahooFinance(x):
             last100AverageVolume = sum(last100Volume) / 100
             last200Volume = max_daily_volumes[-200:]
             last200AverageVolume = sum(last200Volume) / 200
-            print("5-Day Volume " + str(last5AverageVolume))
-            print("10-Day Volume " + str(last10AverageVolume))
-            print("20-Day Volume " + str(last20AverageVolume))
-            print("50-Day Volume " + str(last50AverageVolume))
-            print("100-Day Volume " + str(last100AverageVolume))
-            print("200-Day Volume " + str(last200AverageVolume))
         def determine_RSI(x):
             # Code for calcualting the RSI of stock
             delta = dataFrame['Adj Close'].diff(1)
@@ -256,47 +258,66 @@ def grabDataYahooFinance(x):
         # determine_RSI(x)
         # fib_retracement(x)
 
-        window = Tk()
-        window.title('Stock Analysis')
-        window.geometry("700x700")
-        # Yesterdays close label
-        yesterdays_close_lbl = Label(window, text="Yesterdays Close --->" + str(yesterdays_close))
-        # Moving averages labels
-        five_SMA_lbl = Label(window, text="5-SMA --->" + str(five_day_SMA[-1]))
-        ten_SMA_lbl = Label(window, text="10-SMA --->" +  str(ten_day_SMA[-1]))
-        twenty_SMA_lbl = Label(window, text="20-SMA --->" +  str(twenty_day_SMA[-1]))
-        fifty_SMA_lbl = Label(window, text="50-SMA --->" +  str(fifty_day_SMA[-1]))
-        one_hundred_SMA_lbl = Label(window, text="100-SMA --->" +  str(one_hundred_day_SMA[-1]))
-        two_hundred_SMA_lbl = Label(window, text="200-SMA --->" +  str(two_hundred_day_SMA[-1]))
-        five_EMA_lbl =  Label(window, text="5-EMA --->" + str(five_day_EMA[-1]))
-        ten_EMA_lbl =  Label(window, text="10-EMA --->" + str(ten_day_EMA[-1]))
-        twenty_EMA_lbl =  Label(window, text="20-EMA --->" + str(twenty_day_EMA[-1]))
-        fifty_EMA_lbl =  Label(window, text="50-EMA --->" + str(fifty_day_EMA[-1]))
-        one_hundred_EMA_lbl =  Label(window, text="100-EMA --->" + str(one_hundred_day_EMA[-1]))
-        two_hundred_EMA_lbl =  Label(window, text="200-EMA --->" + str(two_hundred_day_EMA[-1]))
-        # Stock information labels
-        long_business_summary_lbl = Label(window,text='Business Summary ---> ' + long_business_summary, wraplength=500,justify='left')
-        # Putting yesterdays close on gui
-        yesterdays_close_lbl.grid(column=0, row=0, padx=10)
-        # Putting the SMAs on gui
-        five_SMA_lbl.grid(column=1, row=0, padx=10)
-        ten_SMA_lbl.grid(column=1, row=1, padx=10)
-        twenty_SMA_lbl.grid(column=1, row=2, padx=10)
-        fifty_SMA_lbl.grid(column=1, row=3, padx=10)
-        one_hundred_SMA_lbl.grid(column=1, row=4, padx=10)
-        two_hundred_SMA_lbl.grid(column=1, row=5, padx=10)
-        # Putting the EMAs on gui
-        five_EMA_lbl.grid(column=2, row=0, padx=10)
-        ten_EMA_lbl.grid(column=2, row=1, padx=10)
-        twenty_EMA_lbl.grid(column=2, row = 2, padx=10)
-        fifty_EMA_lbl.grid(column=2, row = 3, padx=10)
-        one_hundred_EMA_lbl.grid(column=2, row = 4, padx=10)
-        two_hundred_EMA_lbl.grid(column=2, row = 5, padx=10)
-        # Putting stock information on gui
-        long_business_summary_lbl.grid(column=1,pady=15)
+        # Code for GUI
+        def run_gui():
+            window = Tk()
+            window.title('Stock Analysis')
+            window.geometry("700x700")
 
-        # Run tkinter
-        window.mainloop()
+
+            # Yesterdays close label
+            yesterdays_close_lbl = Label(window, text="Yesterdays Close --->" + str(yesterdays_close))
+            # Moving averages labels
+            five_SMA_lbl = Label(window, text="5-SMA --->" + str(five_day_SMA[-1]))
+            ten_SMA_lbl = Label(window, text="10-SMA --->" +  str(ten_day_SMA[-1]))
+            twenty_SMA_lbl = Label(window, text="20-SMA --->" +  str(twenty_day_SMA[-1]))
+            fifty_SMA_lbl = Label(window, text="50-SMA --->" +  str(fifty_day_SMA[-1]))
+            one_hundred_SMA_lbl = Label(window, text="100-SMA --->" +  str(one_hundred_day_SMA[-1]))
+            two_hundred_SMA_lbl = Label(window, text="200-SMA --->" +  str(two_hundred_day_SMA[-1]))
+            five_EMA_lbl =  Label(window, text="5-EMA --->" + str(five_day_EMA[-1]))
+            ten_EMA_lbl =  Label(window, text="10-EMA --->" + str(ten_day_EMA[-1]))
+            twenty_EMA_lbl =  Label(window, text="20-EMA --->" + str(twenty_day_EMA[-1]))
+            fifty_EMA_lbl =  Label(window, text="50-EMA --->" + str(fifty_day_EMA[-1]))
+            one_hundred_EMA_lbl =  Label(window, text="100-EMA --->" + str(one_hundred_day_EMA[-1]))
+            two_hundred_EMA_lbl =  Label(window, text="200-EMA --->" + str(two_hundred_day_EMA[-1]))
+            # Stock volumes
+            five_day_volume_lbl = Label(window, text="5-Volume ---> " + str(last5AverageVolume))
+            ten_day_volume_lbl = Label(window, text="10-Volume ---> " + str(last10AverageVolume))
+            twenty_day_volume_lbl = Label(window, text="20-Volume ---> " + str(last20AverageVolume))
+            fifty_day_volume_lbl = Label(window, text="50-Volume ---> " + str(last50AverageVolume))
+            one_hundred_day_volume_lbl = Label(window, text="100-Volume ---> " + str(last100AverageVolume))
+            two_hundred_day_volume_lbl = Label(window, text="200-Volume ---> " + str(last200AverageVolume))
+
+            # Stock information labels
+            long_business_summary_lbl = Label(window,text='Business Summary ---> ' + long_business_summary, wraplength=500,justify='left')
+            # Putting yesterdays close on gui
+            yesterdays_close_lbl.grid(column=0, row=0, padx=10)
+            # Putting the SMAs on gui
+            five_SMA_lbl.grid(column=1, row=0, padx=10)
+            ten_SMA_lbl.grid(column=1, row=1, padx=10)
+            twenty_SMA_lbl.grid(column=1, row=2, padx=10)
+            fifty_SMA_lbl.grid(column=1, row=3, padx=10)
+            one_hundred_SMA_lbl.grid(column=1, row=4, padx=10)
+            two_hundred_SMA_lbl.grid(column=1, row=5, padx=10)
+            # Putting the EMAs on gui
+            five_EMA_lbl.grid(column=2, row=0, padx=10)
+            ten_EMA_lbl.grid(column=2, row=1, padx=10)
+            twenty_EMA_lbl.grid(column=2, row = 2, padx=10)
+            fifty_EMA_lbl.grid(column=2, row = 3, padx=10)
+            one_hundred_EMA_lbl.grid(column=2, row = 4, padx=10)
+            two_hundred_EMA_lbl.grid(column=2, row = 5, padx=10)
+            # Putting volumes on GUI
+            five_day_volume_lbl.grid(column=0, row=1)
+            ten_day_volume_lbl.grid(column=0, row=2)
+            twenty_day_volume_lbl.grid(column=0, row=3)
+            fifty_day_volume_lbl.grid(column=0, row=4)
+            one_hundred_day_volume_lbl.grid(column=0, row=5)
+            two_hundred_day_volume_lbl.grid(column=0, row=6)
+            # Putting stock information on gui
+            # long_business_summary_lbl.grid(column=1,pady=15)
+            # Run tkinter
+            window.mainloop()
+        run_gui()
 
 
     create_tkinter()
@@ -310,5 +331,4 @@ def grabDataYahooFinance(x):
 # Run code
 userTicker = input('Enter a ticker for a stock in lowercase to \n generate a data frame'
           ' and to generate info about the stock: ')
-# generateStockData(userTicker)
 grabDataYahooFinance(userTicker)
