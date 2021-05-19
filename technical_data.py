@@ -1,28 +1,18 @@
-import tkinter
-
 import pandas_datareader as pdr
 from datetime import date
 import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
 import pandas as pd
 from tkinter import *
 import yfinance as yf
 import mplfinance as mpf
 import pprint
+import plotly.graph_objects as go
 
-# yf.pdr_override()
 today = date.today()
 startDate = "2020-01-01"
-
-
-
-
 # Function for letting the user grab data from yfinance
 def grabDataYahooFinance(x):
     # User input and passing it to yfinance
@@ -74,7 +64,6 @@ def grabDataYahooFinance(x):
         pprint.pprint(Financials)
         pprint.pprint(major_holders)
         pprint.pprint(instituional_holders)
-        pprint.pprint(Recomendations)
 
 
     def create_tkinter():
@@ -99,9 +88,10 @@ def grabDataYahooFinance(x):
             twenty_day_EMA = pd.Series.ewm(max_daily_closes, span=20).mean()
             twenty_six_day_EMA = pd.Series.ewm(max_daily_closes, span=26).mean()
             fifty_day_EMA = pd.Series.ewm(max_daily_closes, span=50).mean()
-            one_hundred_day_EMA =  pd.Series.ewm(max_daily_closes, span=100).mean()
+            one_hundred_day_EMA = pd.Series.ewm(max_daily_closes, span=100).mean()
             two_hundred_day_EMA = pd.Series.ewm(max_daily_closes, span=200).mean()
-            # Plots DATA
+
+            # MatPlotLob Plots DATA
             def plot_SMA_data():
                 rcParams['figure.figsize'] = 12, 6
                 plt.grid(True, color='k', linestyle=":")
@@ -115,6 +105,28 @@ def grabDataYahooFinance(x):
                 plt.plot(max_daily_intervals_dates[-90:], two_hundred_day_SMA[-90:], label="200 SMA", linestyle="--")
                 plt.legend()
                 plt.show()
+            # Plotly Plot Data
+            def plotly_plot_SMA():
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=max_daily_closes[-90:], name='Closing Price',
+                                         line=dict(color='#ef476f', width=4)))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twenty_day_SMA[-90:], name='20-SMA',
+                                          line=dict(color='#f3722c', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=fifty_day_SMA[-90:], name='50-SMA',
+                                          line=dict(color='#f9c74f', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_SMA[-90:], name='5-SMA',
+                                          line=dict(color='#90be6d', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=one_hundred_day_SMA[-90:], name='100-SMA',
+                                          line=dict(color='#577590', width=4, dash='dot')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=two_hundred_day_SMA[-90:], name='200-SMA',
+                                          line=dict(color='#277da1', width=4, dash='dot')))
+
+                fig.update_layout(title=ticker + ' - SMA Data',
+                                  xaxis_title='Date',
+                                  yaxis_title='Dollars')
+
+                fig.show()
+            # Matplotlob Plot Data
             def plot_EMA_data():
                 rcParams['figure.figsize'] = 12, 6
                 plt.grid(True, color='k', linestyle=":")
@@ -128,8 +140,31 @@ def grabDataYahooFinance(x):
                 plt.plot(max_daily_intervals_dates[-90:], two_hundred_day_EMA[-90:], label="200 EMA", linestyle="--")
                 plt.legend()
                 plt.show()
-            plot_SMA_data()
-            plot_EMA_data()
+            def plotly_plot_EMA():
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=max_daily_closes[-90:], name='Closing Price',
+                                         line=dict(color='#ef476f', width=4)))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twenty_day_EMA[-90:], name='20-EMA',
+                                          line=dict(color='#f3722c', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=fifty_day_EMA[-90:], name='50-EMA',
+                                          line=dict(color='#f9c74f', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_EMA[-90:], name='5-EMA',
+                                          line=dict(color='#90be6d', width=4, dash='dash')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=one_hundred_day_EMA[-90:], name='100-EMA',
+                                          line=dict(color='#577590', width=4, dash='dot')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twelve_day_EMA[-90:], name='12-EMA',
+                                          line=dict(color='#277da1', width=4, dash='dot')))
+
+                fig.update_layout(title=ticker + ' - EMA Data',
+                                  xaxis_title='Date',
+                                  yaxis_title='Dollars')
+
+                fig.show()
+
+            # plot_SMA_data()
+            # plot_EMA_data()
+            plotly_plot_SMA()
+            plotly_plot_EMA()
         def calculate_average_volumes(x):
             global last5AverageVolume, last10AverageVolume, last20AverageVolume, last50AverageVolume
             global last100AverageVolume, last200AverageVolume
@@ -161,6 +196,7 @@ def grabDataYahooFinance(x):
             global last14RSI
             last14RSI = RSI[-14:]
             print(last14RSI)
+
             # Code for plotting
             def plotRSI():
                 combined = pd.DataFrame()
@@ -200,7 +236,9 @@ def grabDataYahooFinance(x):
                 ax2.tick_params(axis="y", color="white")
 
                 plt.show()
-            plotRSI()
+
+            # plotRSI()
+
             #  RSI trading strategy
             def RSIStrat():
                 oversold = 0
@@ -222,7 +260,8 @@ def grabDataYahooFinance(x):
                     print('Asset is oversold, buy signal.')
                 elif (normal > overbought) & (normal > oversold):
                     print('Asset is in normal range, neutral signal.')
-            RSIStrat()
+
+            # RSIStrat()
         def fib_retracement(x):
             dataFrame = pdr.get_data_yahoo(x, start=startDate, end=today)
             # Grabs max and min of adjusted close data for time frame
@@ -251,11 +290,12 @@ def grabDataYahooFinance(x):
                 ax.set_facecolor('silver')
                 plt.show()
             # plotData()
+
         # Calling funtions
         generateStockData(x)
         calc_moving_averages(x)
         calculate_average_volumes(x)
-        # determine_RSI(x)
+        determine_RSI(x)
         # fib_retracement(x)
 
         # Code for GUI
@@ -264,22 +304,21 @@ def grabDataYahooFinance(x):
             window.title('Stock Analysis')
             window.geometry("700x700")
 
-
             # Yesterdays close label
             yesterdays_close_lbl = Label(window, text="Yesterdays Close --->" + str(yesterdays_close))
             # Moving averages labels
             five_SMA_lbl = Label(window, text="5-SMA --->" + str(five_day_SMA[-1]))
-            ten_SMA_lbl = Label(window, text="10-SMA --->" +  str(ten_day_SMA[-1]))
-            twenty_SMA_lbl = Label(window, text="20-SMA --->" +  str(twenty_day_SMA[-1]))
-            fifty_SMA_lbl = Label(window, text="50-SMA --->" +  str(fifty_day_SMA[-1]))
-            one_hundred_SMA_lbl = Label(window, text="100-SMA --->" +  str(one_hundred_day_SMA[-1]))
-            two_hundred_SMA_lbl = Label(window, text="200-SMA --->" +  str(two_hundred_day_SMA[-1]))
-            five_EMA_lbl =  Label(window, text="5-EMA --->" + str(five_day_EMA[-1]))
-            ten_EMA_lbl =  Label(window, text="10-EMA --->" + str(ten_day_EMA[-1]))
-            twenty_EMA_lbl =  Label(window, text="20-EMA --->" + str(twenty_day_EMA[-1]))
-            fifty_EMA_lbl =  Label(window, text="50-EMA --->" + str(fifty_day_EMA[-1]))
-            one_hundred_EMA_lbl =  Label(window, text="100-EMA --->" + str(one_hundred_day_EMA[-1]))
-            two_hundred_EMA_lbl =  Label(window, text="200-EMA --->" + str(two_hundred_day_EMA[-1]))
+            ten_SMA_lbl = Label(window, text="10-SMA --->" + str(ten_day_SMA[-1]))
+            twenty_SMA_lbl = Label(window, text="20-SMA --->" + str(twenty_day_SMA[-1]))
+            fifty_SMA_lbl = Label(window, text="50-SMA --->" + str(fifty_day_SMA[-1]))
+            one_hundred_SMA_lbl = Label(window, text="100-SMA --->" + str(one_hundred_day_SMA[-1]))
+            two_hundred_SMA_lbl = Label(window, text="200-SMA --->" + str(two_hundred_day_SMA[-1]))
+            five_EMA_lbl = Label(window, text="5-EMA --->" + str(five_day_EMA[-1]))
+            ten_EMA_lbl = Label(window, text="10-EMA --->" + str(ten_day_EMA[-1]))
+            twenty_EMA_lbl = Label(window, text="20-EMA --->" + str(twenty_day_EMA[-1]))
+            fifty_EMA_lbl = Label(window, text="50-EMA --->" + str(fifty_day_EMA[-1]))
+            one_hundred_EMA_lbl = Label(window, text="100-EMA --->" + str(one_hundred_day_EMA[-1]))
+            two_hundred_EMA_lbl = Label(window, text="200-EMA --->" + str(two_hundred_day_EMA[-1]))
             # Stock volumes
             five_day_volume_lbl = Label(window, text="5-Volume ---> " + str(last5AverageVolume))
             ten_day_volume_lbl = Label(window, text="10-Volume ---> " + str(last10AverageVolume))
@@ -289,7 +328,8 @@ def grabDataYahooFinance(x):
             two_hundred_day_volume_lbl = Label(window, text="200-Volume ---> " + str(last200AverageVolume))
 
             # Stock information labels
-            long_business_summary_lbl = Label(window,text='Business Summary ---> ' + long_business_summary, wraplength=500,justify='left')
+            long_business_summary_lbl = Label(window, text='Business Summary ---> ' + long_business_summary,
+                                               wraplength=500, justify='left')
             # Putting yesterdays close on gui
             yesterdays_close_lbl.grid(column=0, row=0, padx=10)
             # Putting the SMAs on gui
@@ -302,10 +342,10 @@ def grabDataYahooFinance(x):
             # Putting the EMAs on gui
             five_EMA_lbl.grid(column=2, row=0, padx=10)
             ten_EMA_lbl.grid(column=2, row=1, padx=10)
-            twenty_EMA_lbl.grid(column=2, row = 2, padx=10)
-            fifty_EMA_lbl.grid(column=2, row = 3, padx=10)
-            one_hundred_EMA_lbl.grid(column=2, row = 4, padx=10)
-            two_hundred_EMA_lbl.grid(column=2, row = 5, padx=10)
+            twenty_EMA_lbl.grid(column=2, row=2, padx=10)
+            fifty_EMA_lbl.grid(column=2, row=3, padx=10)
+            one_hundred_EMA_lbl.grid(column=2, row=4, padx=10)
+            two_hundred_EMA_lbl.grid(column=2, row=5, padx=10)
             # Putting volumes on GUI
             five_day_volume_lbl.grid(column=0, row=1)
             ten_day_volume_lbl.grid(column=0, row=2)
@@ -317,12 +357,10 @@ def grabDataYahooFinance(x):
             # long_business_summary_lbl.grid(column=1,pady=15)
             # Run tkinter
             window.mainloop()
+
         run_gui()
 
-
     create_tkinter()
-
-
 
     # for col in max_daily_intervals:
     #     print(col)
@@ -330,5 +368,5 @@ def grabDataYahooFinance(x):
 
 # Run code
 userTicker = input('Enter a ticker for a stock in lowercase to \n generate a data frame'
-          ' and to generate info about the stock: ')
+                   ' and to generate info about the stock: ')
 grabDataYahooFinance(userTicker)
