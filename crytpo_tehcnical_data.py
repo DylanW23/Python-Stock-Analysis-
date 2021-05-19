@@ -3,6 +3,7 @@ import matplotlib as plt
 import mplfinance as mpf
 import plotly as go
 import datetime as dt
+import pandas as pd
 
 currency = 'USD'
 start = dt.datetime(2017,1,1)
@@ -39,6 +40,6 @@ appending_crypto_data()
 #                                          high=ticker_highs,
 #                                          low=ticker_lows,
 #                                          close=ticker_closes)])
-#
 #     fig.show()
 # plot_crypto_data()
+print(crypto_data)

@@ -58,10 +58,10 @@ def grabDataYahooFinance(x):
         beta = Info['beta']
         fifty_two_week_high = Info['fiftyTwoWeekHigh']
         fifty_two_week_low = Info['fiftyTwoWeekLow']
-        forward_stock_EPS = Info['forwardEps']
-        forward_stock_PE = Info['forwardPE']
-        trailing_stock_EPS = Info['trailingEps']
-        trailing_stock_PE = Info['trailingPE']
+        # forward_stock_EPS = Info['forwardEps']
+        # forward_stock_PE = Info['forwardPE']
+        # trailing_stock_EPS = Info['trailingEps']
+        # trailing_stock_PE = Info['trailingPE']
 
         pprint.pprint(Info)
         pprint.pprint(Financials)
@@ -111,18 +111,18 @@ def grabDataYahooFinance(x):
             # Plotly Plot Data
             def plotly_plot_SMA():
                 fig = go.Figure()
-                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=max_daily_closes[-90:], name='20-SMA',
-                                          line=dict(color='#f3722c', width=4, dash='dot')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=max_daily_closes[-90:], name='Closes',
+                                          line=dict(color='#f3722c', width=4)))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_SMA[-90:], name='5-SMA',
+                                          line=dict(color='#90be6d', width=4, dash='dot')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twenty_day_SMA[-90:], name='20-SMA',
                                           line=dict(color='#f3722c', width=4, dash='dot')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=fifty_day_SMA[-90:], name='50-SMA',
                                           line=dict(color='#f9c74f', width=4, dash='dot')))
-                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_SMA[-90:], name='5-SMA',
-                                          line=dict(color='#90be6d', width=4, dash='doth')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=one_hundred_day_SMA[-90:], name='100-SMA',
-                                          line=dict(color='#577590', width=4, dash='dot')))
+                                          line=dict(color='#577590', width=4, dash='dash')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=two_hundred_day_SMA[-90:], name='200-SMA',
-                                          line=dict(color='#277da1', width=4, dash='dot')))
+                                          line=dict(color='#277da1', width=4, dash='dash')))
 
                 fig.update_layout(title=ticker + ' - SMA Data',
                                   xaxis_title='Date',
@@ -147,16 +147,16 @@ def grabDataYahooFinance(x):
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=max_daily_closes[-90:], name='Closing Price',
                                          line=dict(color='#ef476f', width=4)))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_EMA[-90:], name='5-EMA',
+                                          line=dict(color='#90be6d', width=4, dash='dot')))
+                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twelve_day_EMA[-90:], name='12-EMA',
+                                          line=dict(color='#277da1', width=4, dash='dot')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twenty_day_EMA[-90:], name='20-EMA',
                                           line=dict(color='#f3722c', width=4, dash='dot')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=fifty_day_EMA[-90:], name='50-EMA',
-                                          line=dict(color='#f9c74f', width=4, dash='dot')))
-                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=five_day_EMA[-90:], name='5-EMA',
-                                          line=dict(color='#90be6d', width=4, dash='dot')))
+                                          line=dict(color='#f9c74f', width=4, dash='dash')))
                 fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=one_hundred_day_EMA[-90:], name='100-EMA',
-                                          line=dict(color='#577590', width=4, dash='dot')))
-                fig.add_trace(go.Scatter(x=max_daily_intervals_dates[-90:], y=twelve_day_EMA[-90:], name='12-EMA',
-                                          line=dict(color='#277da1', width=4, dash='dot')))
+                                          line=dict(color='#577590', width=4, dash='dash')))
 
                 fig.update_layout(title=ticker + ' - EMA Data',
                                   xaxis_title='Date',
