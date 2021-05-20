@@ -6,10 +6,13 @@ import datetime as dt
 import pandas as pd
 
 currency = 'USD'
-start = dt.datetime(2017,1,1)
+start = dt.datetime(2009,1,1)
 end = dt.datetime.now()
 
-crytpo_ticker = 'BTC'
+userTicker = input('Enter a ticker for a crypto in lowercase to \n generate a data frame'
+                   ' and to generate info about the crypto: ')
+
+crytpo_ticker = userTicker.upper().strip()
 ticker_dates = []
 ticker_highs = []
 ticker_lows = []
@@ -18,28 +21,46 @@ ticker_opens = []
 ticker_volumes = []
 
 crypto_data = pdr.DataReader(f'{crytpo_ticker}-{currency}', 'yahoo', start, end)
-
-print(crypto_data)
+# Appending the data to lists
 def appending_crypto_data():
+    global ticker_highs, ticker_lows, ticker_opens, ticker_closes, ticker_dates, ticker_volumes
     for x in crypto_data:
-        ticker_dates.append(crypto_data.index)
+        ticker_dates = (crypto_data.index)
     for x in crypto_data:
-        ticker_highs.append(crypto_data['High'])
+        ticker_highs = (crypto_data['High'])
     for x in crypto_data:
-        ticker_lows.append(crypto_data['Low'])
+        ticker_lows = (crypto_data['Low'])
     for x in crypto_data:
-        ticker_opens.append(crypto_data['Open'])
+        ticker_opens = (crypto_data['Open'])
     for x in crypto_data:
-        ticker_closes.append(crypto_data['Close'])
+        ticker_closes = (crypto_data['Close'])
     for x in crypto_data:
-        ticker_volumes.append(crypto_data['Volume'])
+        ticker_volumes = (crypto_data['Volume'])
 appending_crypto_data()
-# def plot_crypto_data():
-#     fig = go.Figure(data=[go.Candlestick(x=ticker_dates,
-#                                          open=ticker_opens,
-#                                          high=ticker_highs,
-#                                          low=ticker_lows,
-#                                          close=ticker_closes)])
-#     fig.show()
-# plot_crypto_data()
-print(crypto_data)
+
+def moving_averages(x):
+    # Simple moving averages
+    global five_day_SMA,ten_day_SMA,twenty_day_SMA,fifty_day_SMA,one_hundred_day_SMA,two_hundred_day_SMA
+    five_day_SMA = ticker_closes.rolling(5, min_periods=1).mean()
+    ten_day_SMA = ticker_closes.rolling(10, min_periods=1).mean()
+    twenty_day_SMA = ticker_closes.rolling(20, min_periods=1).mean()
+    fifty_day_SMA = ticker_closes.rolling(50, min_periods=1).mean()
+    one_hundred_day_SMA = ticker_closes.rolling(100, min_periods=1).mean()
+    two_hundred_day_SMA = ticker_closes.rolling(200, min_periods=1).mean()
+    # Exponential moving averages
+    five_day_EMA = pd.Series.ewm(ticker_closes, span=5).mean()
+    ten_day_EMA = pd.Series.ewm(ticker_closes, span=10).mean()
+    eight_day_EMA = pd.Series.ewm(ticker_closes, span=8).mean()
+    twelve_day_EMA = pd.Series.ewm(ticker_closes, span=12).mean()
+    twenty_day_EMA = pd.Series.ewm(ticker_closes, span=20).mean()
+    twenty_six_day_EMA = pd.Series.ewm(ticker_closes, span=26).mean()
+    fifty_day_EMA = pd.Series.ewm(ticker_closes, span=50).mean()
+    one_hundred_day_EMA = pd.Series.ewm(ticker_closes, span=100).mean()
+    two_hundred_day_EMA = pd.Series.ewm(ticker_closes, span=200).mean()
+moving_averages(crytpo_ticker)
+
+print(five_day_SMA[-1])
+print(twenty_day_SMA[-1])
+print(fifty_day_SMA[-1])
+print(one_hundred_day_SMA[-1])
+print(two_hundred_day_SMA[-1])
